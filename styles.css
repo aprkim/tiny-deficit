@@ -796,6 +796,9 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .import-btn:hover {
@@ -804,15 +807,11 @@ body {
 }
 
 .hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
 }
 
 /* ===================================
