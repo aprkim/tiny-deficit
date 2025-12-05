@@ -236,6 +236,13 @@ function initializeEventListeners() {
         document.getElementById('toggle-lb').classList.remove('active');
         renderGraph();
     });
+    
+    // Export/Import data
+    document.getElementById('export-data-btn').addEventListener('click', exportData);
+    document.getElementById('import-data-btn').addEventListener('click', () => {
+        document.getElementById('import-file-input').click();
+    });
+    document.getElementById('import-file-input').addEventListener('change', importData);
 }
 
 function switchScreen(screenName) {
@@ -649,4 +656,64 @@ function closeAllModals() {
     document.querySelectorAll('.modal').forEach(modal => {
         modal.classList.remove('active');
     });
+}
+
+// ===================================
+// Export/Import Data
+// ===================================
+
+function exportData() {
+    const dataStr = JSON.stringify(appData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().split('T')[0];
+    link.download = `tiny-deficit-backup-${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert('Data exported successfully! ✓');
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            
+            // Validate data structure
+            if (!imported.days || !imported.presets) {
+                alert('Invalid data file format');
+                return;
+            }
+            
+            // Confirm overwrite
+            if (appData.days.length > 0 || appData.presets.length > 0) {
+                if (!confirm('This will replace your current data. Continue?')) {
+                    return;
+                }
+            }
+            
+            appData = imported;
+            saveData();
+            loadTodayScreen();
+            
+            alert('Data imported successfully! ✓');
+        } catch (error) {
+            alert('Error importing data. Please check the file.');
+            console.error('Import error:', error);
+        }
+    };
+    
+    reader.readAsText(file);
+    
+    // Reset file input
+    event.target.value = '';
 }
