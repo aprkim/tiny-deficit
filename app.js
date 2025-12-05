@@ -211,6 +211,9 @@ function initializeEventListeners() {
     // Add preset food item
     document.getElementById('add-preset-item-btn').addEventListener('click', addPresetFoodItem);
     
+    // Lookup calories button
+    document.getElementById('lookup-calories-btn').addEventListener('click', lookupCalories);
+    
     // Allow Enter key to add preset item
     document.getElementById('preset-item-calories').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -544,6 +547,52 @@ function editPreset(index) {
     document.querySelector('#preset-modal .modal-title').textContent = 'Edit Preset Meal';
     
     openModal('preset-modal');
+}
+
+async function lookupCalories() {
+    const name = document.getElementById('preset-item-name').value.trim();
+    const caloriesInput = document.getElementById('preset-item-calories');
+    const lookupBtn = document.getElementById('lookup-calories-btn');
+    
+    if (!name) {
+        alert('Please enter a food name first');
+        return;
+    }
+    
+    // Show loading state
+    lookupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    lookupBtn.disabled = true;
+    
+    try {
+        // Using USDA FoodData Central API (no API key required for basic search)
+        const response = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(name)}&pageSize=1&api_key=DEMO_KEY`);
+        const data = await response.json();
+        
+        if (data.foods && data.foods.length > 0) {
+            const food = data.foods[0];
+            // Find calories per 100g
+            const calorieNutrient = food.foodNutrients.find(n => 
+                n.nutrientName === 'Energy' && n.unitName === 'KCAL'
+            );
+            
+            if (calorieNutrient) {
+                const calories = Math.round(calorieNutrient.value);
+                caloriesInput.value = calories;
+                caloriesInput.focus();
+            } else {
+                alert('Could not find calorie information for this food');
+            }
+        } else {
+            alert('Food not found. Please try a different name or enter calories manually.');
+        }
+    } catch (error) {
+        console.error('Calorie lookup error:', error);
+        alert('Unable to look up calories. Please enter manually.');
+    } finally {
+        // Restore button
+        lookupBtn.innerHTML = '<i class="fas fa-search"></i>';
+        lookupBtn.disabled = false;
+    }
 }
 
 function addPresetFoodItem() {

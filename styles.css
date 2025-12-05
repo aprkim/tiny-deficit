@@ -703,8 +703,24 @@ body {
     min-width: 0;
 }
 
+.preset-add-item input[type="text"] {
+    flex: 2;
+}
+
 .preset-add-item input[type="number"] {
     flex: 0 0 90px;
+}
+
+#lookup-calories-btn {
+    flex: 0 0 auto;
+    min-width: 40px;
+    padding: 10px 12px;
+    height: 44px;
+}
+
+.preset-add-item input,
+.preset-add-item button {
+    height: 44px;
 }
 
 #preset-calories-calculated {
