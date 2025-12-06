@@ -779,7 +779,10 @@ function updatePresetItemsList() {
     
     if (presetItems.length === 0) {
         container.innerHTML = '<p class="empty-state">No items added yet</p>';
-        totalInput.value = 0;
+        // Don't reset total if user manually entered a value
+        if (!totalInput.value || totalInput.value === '0') {
+            totalInput.value = '';
+        }
         return;
     }
     
